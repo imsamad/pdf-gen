@@ -27,19 +27,15 @@ app.get("/generate-pdf/:slug", async (req, res) => {
       return res.status(500).json({ message: "Failed to generate PDF" });
     }
 
-    // Check if file exists before downloading
     fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
         console.error("File not found:", err);
         return res.status(500).json({ message: "Generated PDF not found" });
       }
 
-      res.download(filePath, "document.pdf", (err) => {
-        if (err) {
-          console.error("Error sending file:", err);
-          res.status(500).json({ message: "Failed to send file" });
-        }
-      });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "inline; filename=document.pdf");
+      res.sendFile(path.resolve(filePath));
     });
   } catch (error) {
     console.error("Error:", error);
